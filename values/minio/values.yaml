@@ -1,0 +1,81 @@
+## MinIO HA Configuration
+## Mode: distributed (HA)
+
+mode: distributed
+
+## Authentication
+auth:
+  rootUser: admin
+  rootPassword: "change-me-in-production"
+  # Hoặc dùng existingSecret
+  # existingSecret: minio-secret
+
+## Distributed mode settings (HA)
+statefulset:
+  replicaCount: 4  # Tối thiểu 4 cho distributed mode
+  zones: 1
+  drivesPerNode: 1
+
+## Persistence
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClass: "standard-rwo"
+
+## Resources
+resources:
+  requests:
+    memory: 512Mi
+    cpu: 250m
+  limits:
+    memory: 1Gi
+    cpu: 500m
+
+## Ingress (optional - cho MinIO Console)
+ingress:
+  enabled: false
+  # enabled: true
+  # hostname: minio-console.yourdomain.com
+  # ingressClassName: nginx
+  # annotations:
+  #   cert-manager.io/cluster-issuer: letsencrypt-prod
+  # tls: true
+
+## API Ingress (optional - cho S3 API)
+apiIngress:
+  enabled: false
+  # enabled: true
+  # hostname: minio-api.yourdomain.com
+  # ingressClassName: nginx
+  # annotations:
+  #   cert-manager.io/cluster-issuer: letsencrypt-prod
+  # tls: true
+
+## Service
+service:
+  type: ClusterIP
+  ports:
+    api: 9000
+    console: 9001
+
+## Default buckets (tạo sẵn cho Harbor)
+provisioning:
+  enabled: true
+  buckets:
+    - name: harbor
+      policy: none
+      purge: false
+
+## Pod Anti-Affinity cho HA
+podAntiAffinityPreset: soft
+
+## Network Policy
+networkPolicy:
+  enabled: false
+
+## Metrics (optional)
+metrics:
+  enabled: false
+  # serviceMonitor:
+  #   enabled: true
+  #   namespace: monitoring

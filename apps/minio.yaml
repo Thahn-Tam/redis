@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: minio
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+
+  sources:
+    # Source 1: Helm chart từ Bitnami OCI registry
+    - repoURL: registry-1.docker.io/bitnamicharts
+      chart: minio
+      targetRevision: 17.0.21
+      helm:
+        valueFiles:
+          - $values/values/minio/values.yaml
+
+    # Source 2: Git repo chứa values file
+    - repoURL: https://github.com/Thahn-Tam/redis.git
+      targetRevision: main
+      ref: values
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: minio
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true
