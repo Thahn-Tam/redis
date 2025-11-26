@@ -55,9 +55,9 @@ database:
 redis:
   type: external
   external:
-    addr: redis.redis.svc.cluster.local:6379
+    addr: redis.redis.svc.cluster.local:26379
     password: password
-    sentinelMasterSet: ""
+    sentinelMasterSet: "mymaster"
 
 ## Disable internal database and redis
 postgresql:
