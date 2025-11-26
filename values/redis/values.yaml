@@ -10,7 +10,7 @@ auth:
   # Sử dụng existingSecret để không hardcode password
   # existingSecret: redis-secret
   # existingSecretPasswordKey: redis-password
-  password: "change-me-in-production"
+  password: "password"
 
 ## Sentinel Configuration
 sentinel:
