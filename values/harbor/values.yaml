@@ -55,7 +55,7 @@ database:
 redis:
   type: external
   external:
-    addr: redis-master.redis.svc.cluster.local:6379
+    addr: redis-node-0.redis-headless.redis.svc.cluster.local:6379
     password: password
     sentinelMasterSet: ""
 
