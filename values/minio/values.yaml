@@ -1,25 +1,20 @@
-## MinIO HA Configuration
-## Mode: distributed (HA)
+## MinIO Official Chart - Distributed Mode
 
 mode: distributed
 
-## Authentication
-auth:
-  rootUser: admin
-  rootPassword: "change-me-in-production"
-  # Hoặc dùng existingSecret
-  # existingSecret: minio-secret
+## Replicas (tối thiểu 4 cho distributed)
+replicas: 4
 
-## Distributed mode settings (HA)
-statefulset:
-  replicaCount: 4  # Tối thiểu 4 cho distributed mode
-  zones: 1
-  drivesPerNode: 1
+## Root credentials
+rootUser: admin
+rootPassword: "minioadmin"
+# Hoặc dùng existingSecret:
+# existingSecret: minio-secret
 
 ## Persistence
 persistence:
   enabled: true
-  size: 10Gi
+  size: 5Gi
   storageClass: "standard-rwo"
 
 ## Resources
@@ -31,51 +26,42 @@ resources:
     memory: 1Gi
     cpu: 500m
 
-## Ingress (optional - cho MinIO Console)
-ingress:
-  enabled: false
-  # enabled: true
-  # hostname: minio-console.yourdomain.com
-  # ingressClassName: nginx
-  # annotations:
-  #   cert-manager.io/cluster-issuer: letsencrypt-prod
-  # tls: true
-
-## API Ingress (optional - cho S3 API)
-apiIngress:
-  enabled: false
-  # enabled: true
-  # hostname: minio-api.yourdomain.com
-  # ingressClassName: nginx
-  # annotations:
-  #   cert-manager.io/cluster-issuer: letsencrypt-prod
-  # tls: true
-
 ## Service
 service:
   type: ClusterIP
-  ports:
-    api: 9000
-    console: 9001
+  port: 9000
 
-## Default buckets (tạo sẵn cho Harbor)
-provisioning:
-  enabled: true
-  buckets:
-    - name: harbor
-      policy: none
-      purge: false
+## Console Service
+consoleService:
+  type: ClusterIP
+  port: 9001
 
-## Pod Anti-Affinity cho HA
-podAntiAffinityPreset: soft
-
-## Network Policy
-networkPolicy:
+## Ingress (optional)
+ingress:
   enabled: false
+  # hosts:
+  #   - minio-console.yourdomain.com
+  # annotations:
+  #   kubernetes.io/ingress.class: nginx
+  #   cert-manager.io/cluster-issuer: letsencrypt-prod
+  # tls:
+  #   - secretName: minio-tls
+  #     hosts:
+  #       - minio-console.yourdomain.com
 
-## Metrics (optional)
-metrics:
-  enabled: false
-  # serviceMonitor:
-  #   enabled: true
-  #   namespace: monitoring
+## Create bucket for Harbor
+buckets:
+  - name: harbor
+    policy: none
+    purge: false
+
+## Pod Anti-Affinity
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app: minio
+          topologyKey: kubernetes.io/hostname
