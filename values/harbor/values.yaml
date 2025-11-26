@@ -51,13 +51,13 @@ database:
     coreDatabase: harbor
     sslmode: disable
 
-## External Redis
+## External Redis - Direct connection (không dùng Sentinel)
 redis:
   type: external
   external:
-    addr: redis.redis.svc.cluster.local:26379
+    addr: redis-master.redis.svc.cluster.local:6379
     password: password
-    sentinelMasterSet: "mymaster"
+    sentinelMasterSet: ""
 
 ## Disable internal database and redis
 postgresql:
