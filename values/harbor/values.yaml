@@ -18,10 +18,21 @@ expose:
 
 externalURL: https://harbor.thanhtamhcmut.site
 
-## Persistence - Disable internal, use external
+## Persistence với S3 Storage (MinIO)
 persistence:
   enabled: true
   resourcePolicy: "keep"
+  imageChartStorage:
+    disableredirect: true
+    type: s3
+    s3:
+      region: us-east-1
+      bucket: harbor
+      accesskey: admin
+      secretkey: minioadmin
+      regionendpoint: http://minio.minio.svc.cluster.local:9000
+      secure: false
+      v4auth: true
   persistentVolumeClaim:
     registry:
       size: 1Gi
@@ -38,8 +49,6 @@ database:
     username: harbor
     password: harbor
     coreDatabase: harbor
-    notaryServerDatabase: notary_server
-    notarySignerDatabase: notary_signer
     sslmode: disable
 
 ## External Redis
@@ -50,23 +59,8 @@ redis:
     password: password
     sentinelMasterSet: ""
 
-## External S3 Storage (MinIO)
-imageChartStorage:
-  type: s3
-  s3:
-    region: us-east-1
-    bucket: harbor
-    accesskey: admin
-    secretkey: minioadmin
-    regionendpoint: http://minio.minio.svc.cluster.local:9000
-    secure: false
-    v4auth: true
-
 ## Disable internal database and redis
 postgresql:
-  enabled: false
-
-redis:
   enabled: false
 
 ## Core service
@@ -79,10 +73,12 @@ core:
     limits:
       memory: 512Mi
       cpu: 500m
+  configOverwrite:
+    SCAN_ON_PUSH: "true"
 
-## Job Service
+## Job Service - 1 replica vì dùng RWO PVC
 jobservice:
-  replicas: 2
+  replicas: 1
   resources:
     requests:
       memory: 256Mi
@@ -91,7 +87,7 @@ jobservice:
       memory: 512Mi
       cpu: 500m
 
-## Registry
+## Registry - HA với S3 storage
 registry:
   replicas: 2
   resources:
@@ -113,7 +109,7 @@ portal:
       memory: 256Mi
       cpu: 200m
 
-## Trivy (vulnerability scanner)
+## Trivy
 trivy:
   enabled: true
   replicas: 1
@@ -124,10 +120,8 @@ trivy:
     limits:
       memory: 1Gi
       cpu: 500m
-core:
-  configOverwrite:
-    SCAN_ON_PUSH: "true"
-## Notary - optional, disable nếu không cần
+
+## Notary - disable
 notary:
   enabled: false
 
