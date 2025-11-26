@@ -124,7 +124,9 @@ trivy:
     limits:
       memory: 1Gi
       cpu: 500m
-
+core:
+  configOverwrite:
+    SCAN_ON_PUSH: "true"
 ## Notary - optional, disable nếu không cần
 notary:
   enabled: false
