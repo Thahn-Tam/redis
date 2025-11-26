@@ -1,0 +1,137 @@
+## Harbor HA Configuration
+
+expose:
+  type: ingress
+  tls:
+    enabled: true
+    certSource: secret
+    secret:
+      secretName: harbor-tls
+  ingress:
+    hosts:
+      core: harbor.thanhtamhcmut.site
+    className: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/proxy-body-size: "0"
+
+externalURL: https://harbor.thanhtamhcmut.site
+
+## Persistence - Disable internal, use external
+persistence:
+  enabled: true
+  resourcePolicy: "keep"
+  persistentVolumeClaim:
+    registry:
+      size: 10Gi
+    jobservice:
+      jobLog:
+        size: 1Gi
+
+## External PostgreSQL
+database:
+  type: external
+  external:
+    host: postgres-ha-rw.postgres.svc.cluster.local
+    port: "5432"
+    username: harbor
+    password: harbor
+    coreDatabase: harbor
+    notaryServerDatabase: notary_server
+    notarySignerDatabase: notary_signer
+    sslmode: disable
+
+## External Redis
+redis:
+  type: external
+  external:
+    addr: redis.redis.svc.cluster.local:6379
+    password: password
+    sentinelMasterSet: ""
+
+## External S3 Storage (MinIO)
+imageChartStorage:
+  type: s3
+  s3:
+    region: us-east-1
+    bucket: harbor
+    accesskey: admin
+    secretkey: minioadmin
+    regionendpoint: http://minio.minio.svc.cluster.local:9000
+    secure: false
+    v4auth: true
+
+## Disable internal database and redis
+postgresql:
+  enabled: false
+
+redis:
+  enabled: false
+
+## Core service
+core:
+  replicas: 2
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+
+## Job Service
+jobservice:
+  replicas: 2
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+
+## Registry
+registry:
+  replicas: 2
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+
+## Portal
+portal:
+  replicas: 2
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 200m
+
+## Trivy (vulnerability scanner)
+trivy:
+  enabled: true
+  replicas: 1
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 1Gi
+      cpu: 500m
+
+## Notary - optional, disable nếu không cần
+notary:
+  enabled: false
+
+## Metrics
+metrics:
+  enabled: false
+
+## Harbor admin password
+harborAdminPassword: "Harbor12345"

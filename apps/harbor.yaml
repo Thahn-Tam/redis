@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: harbor
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+
+  sources:
+    # Source 1: Harbor Helm chart
+    - repoURL: https://helm.goharbor.io
+      chart: harbor
+      targetRevision: 1.16.0
+      helm:
+        valueFiles:
+          - $values/values/harbor/values.yaml
+
+    # Source 2: Git repo chứa values file
+    - repoURL: https://github.com/Thahn-Tam/redis.git
+      targetRevision: main
+      ref: values
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: harbor
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PruneLast=true
