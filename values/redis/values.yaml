@@ -39,7 +39,7 @@ master:
   
   persistence:
     enabled: true
-    size: 3Gi
+    size: 1Gi
     storageClass: "standard-rwo"  # GKE storage class
   
   resources:
@@ -61,7 +61,7 @@ replica:
   
   persistence:
     enabled: true
-    size: 3Gi
+    size: 1Gi
     storageClass: "standard-rwo"
   
   resources:

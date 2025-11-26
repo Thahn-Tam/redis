@@ -24,7 +24,7 @@ persistence:
   resourcePolicy: "keep"
   persistentVolumeClaim:
     registry:
-      size: 10Gi
+      size: 1Gi
     jobservice:
       jobLog:
         size: 1Gi
